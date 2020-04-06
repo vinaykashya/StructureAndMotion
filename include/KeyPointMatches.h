@@ -18,4 +18,14 @@ class KeyPointMatches
         Mat mDescriptors;
         map<int, map<int,int>> mKeyPointMatches;
         map<int, int> mKPtoLandMarkMatches;
+
+        bool fKeyPointMatchExists(int keyPointIdx, int imgIdx)
+        {
+            return mKeyPointMatches[keyPointIdx].count(imgIdx) > 0;
+        }
+        int fReturnMatchIndex(int keyPointIdx, int imgIdx)
+        {
+            return mKeyPointMatches[keyPointIdx][imgIdx];
+        }
+
 };

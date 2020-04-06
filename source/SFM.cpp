@@ -7,5 +7,6 @@ int main()
     sfmTest.fPopulateCameras();
     cout<<"cameras populated"<<endl;
     sfmTest.fCalculateMatchFeaturePoints();
+    sfmTest.fShowMatches();
     return 0;
 }

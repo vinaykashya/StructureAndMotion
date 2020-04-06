@@ -48,19 +48,9 @@ bool PoseEstimator::fCalculateMatchFeaturePoints()
     BFMatcher matcher(NORM_HAMMING);
     for(int i = 0; i < mNumCameraPoses; i++)
     {
-        //namedWindow("Test", 0);
-        /* imshow("Test", mCameraPose[i].mImg.mImage);
-        waitKey(); */
-        //vector<KeyPoint> kp;
-        //Mat desc;
         feature->detectAndCompute(mCameraPose[i].mImg.mImage,noArray(), mCameraPose[i].mKPMatches.mKeyPoints, mCameraPose[i].mKPMatches.mDescriptors);
-        cout<<"features for image calculated before copying:"<<i<<endl;
-        //mCameraPose[i].mKPMatches.mKeyPoints = kp;
-        //mCameraPose[i].mKPMatches.mDescriptors = desc;
-        //feature->compute(mCameraPose[i].mKPMatches.mKeyPoints, mCameraPose[i].mKPMatches.mDescriptors);
     }
     cout<<"features calculated:"<<endl;
-    namedWindow("img", WINDOW_NORMAL);
     for(int i = 0; i < mNumCameraPoses-1; i++)
     {
         for(int j = i+1; j < mNumCameraPoses; j++)
@@ -74,7 +64,7 @@ bool PoseEstimator::fCalculateMatchFeaturePoints()
             matcher.knnMatch(mCameraPose[i].mKPMatches.mDescriptors, mCameraPose[j].mKPMatches.mDescriptors, matches, 2);
             for(auto &m:matches)
             {
-                if(m[0].distance < 0.7*m[1].distance)
+                if(m[0].distance < 0.8*m[1].distance)
                 {
                     src.push_back(mCameraPose[i].mKPMatches.mKeyPoints[m[0].queryIdx].pt);
                     dst.push_back(mCameraPose[j].mKPMatches.mKeyPoints[m[0].trainIdx].pt);
@@ -83,9 +73,7 @@ bool PoseEstimator::fCalculateMatchFeaturePoints()
 
                 }
             }
-            findFundamentalMat(src,dst,FM_RANSAC, 3.0, 0.99, mask);
-            /* Mat canvas = mCameraPose[i].mImg.mImage.clone();
-            canvas.push_back(mCameraPose[j].mImg.mImage.clone()); */
+            findFundamentalMat(src,dst,FM_RANSAC, .0, 0.99, mask);
 
             for(size_t k = 0; k < mask.size(); k++)
             {
@@ -93,24 +81,38 @@ bool PoseEstimator::fCalculateMatchFeaturePoints()
                 {
                     mCameraPose[i].mKPMatches.mKeyPointMatches[i_kp[k]][j] = j_kp[k];
                     mCameraPose[j].mKPMatches.mKeyPointMatches[j_kp[k]][i] = i_kp[k];
-                    //KeyPoint a, b;
-                    
-                    //src_inlier.push_back(mCameraPose[i].mKPMatches.mKeyPoints[i_kp[k]]);
-                    //dst_inlier.push_back(mCameraPose[j].mKPMatches.mKeyPoints[j_kp[k]]);
-                    //int new_i = static_cast<int>(src_inlier.size());
-                    //good_matches.push_back(DMatch(new_i, new_i, 0));
-                    /* line(canvas, src[k], dst[k] + Point2f(0, mCameraPose[i].mImg.mHeight), Scalar(0, 0, 255), 2);
-                    resize(canvas, canvas, canvas.size()/2);
-                    imshow("img", canvas);
-                    waitKey(); */
                 }
             }
-            //Mat res;
-            //drawMatches(mCameraPose[i].mImg.mImage, src_inlier, mCameraPose[j].mImg.mImage, dst_inlier, good_matches, res);
-            //imshow("img", res);
-            //waitKey();
         }
     }
     cout<<"features matches calculated:"<<endl;
+}
 
+void PoseEstimator::fShowMatches()
+{
+    namedWindow("Image Matches", WINDOW_NORMAL);
+    for(int i = 0 ; i < mNumCameraPoses-1 ; i++)
+    {
+        for(int j = i+1; j < mNumCameraPoses; j++)
+        {
+            vector<KeyPoint> src, dst;
+            vector<DMatch> matches;
+            for(int k = 0; k < mCameraPose[i].mKPMatches.mKeyPoints.size(); k++)
+            {
+                if(mCameraPose[i].mKPMatches.fKeyPointMatchExists(k,j))
+                {
+                    matches.push_back(DMatch(k,mCameraPose[i].mKPMatches.fReturnMatchIndex(k,j), 0.0));
+                }
+            }
+            Mat res;
+            drawMatches(mCameraPose[i].mImg.mImage, mCameraPose[i].mKPMatches.mKeyPoints, mCameraPose[j].mImg.mImage, mCameraPose[j].mKPMatches.mKeyPoints,matches, res); 
+            imshow("Image Matches", res);
+            waitKey();
+        }
+    }
+}
+
+bool PoseEstimator::fCalculateCameraPoses()
+{
+    
 }

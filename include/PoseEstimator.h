@@ -18,8 +18,8 @@ class PoseEstimator
         size_t mNumCameraPoses;
         bool fPopulateCameras();
         bool fCalculateMatchFeaturePoints();
-        /* void showMatches();
+        void fShowMatches();
         bool fCalculateCameraPoses();
-        bool fTriangulateFeaturePoints();
+        /* bool fTriangulateFeaturePoints();
         bool fBundleAdjust(); */
 };
